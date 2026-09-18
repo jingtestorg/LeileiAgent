@@ -1,0 +1,19 @@
+requirements:
+  agent_response_requirements:
+    - 'The agent returns a natural-language greeting that mentions the city name, current temperature in degrees Celsius, and the weather condition for the location provided.'
+    - 'When no location can be extracted from the user input, the agent responds with a friendly generic greeting and explains that a location is needed to personalise the response.'
+    - 'When weather data cannot be retrieved for the identified location, the agent responds with a friendly generic greeting and states that weather data is unavailable rather than omitting the explanation.'
+    - 'The agent greeting is specific to the location and weather retrieved — it references the actual city and condition rather than producing a generic template response.'
+    - '[BUSINESS_METRIC: Working demo delivering contextual greetings] The agent delivers an end-to-end contextual greeting that references the user-supplied location and the current weather data retrieved for that location, demonstrating the full personalization capability.'
+  tool_requirements:
+    - 'Agent must call resolve_location with the user-supplied free-text message to extract the city name before calling get_weather.'
+    - 'Agent must call get_weather with the city name returned by resolve_location to retrieve the current temperature and weather condition.'
+    - 'WHEN resolve_location returns an empty string, the agent must not call get_weather and must respond with a fallback greeting rather than attempting weather retrieval.'
+    - 'Agent must not call get_weather before resolve_location has confirmed a city name was extracted from the user message.'
+    - 'WHEN get_weather returns a dict containing an error key, the agent must not present any weather data as factual and must fall back to a generic greeting with an explanation.'
+  rule_compliance_requirements:
+    - 'WHEN the user input contains no identifiable location, the agent MUST NOT invent or assume a city and MUST respond with a helpful message explaining that a location is needed.'
+    - 'WHEN the weather API is unavailable or returns an error, the agent MUST NOT fail silently and MUST inform the user that weather data could not be retrieved.'
+    - 'WHEN composing a greeting, the agent MUST NOT state a temperature, weather condition, or city detail it has not obtained from the tools in the current turn.'
+    - 'WHEN the user requests something outside the scope of location-based weather greetings, the agent MUST decline the request and MUST redirect the user to its intended purpose.'
+    - 'The agent MUST NOT acknowledge storing, saving, or persisting user location data and MUST NOT indicate that any write operation to an external system was performed.'

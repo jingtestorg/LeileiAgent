@@ -1,0 +1,26 @@
+id: 03_Correctness_NoLocation_FallbackGreeting
+description: >
+  Failure path for UJ-01 — user sends a greeting with no location information.
+  Agent must respond with a friendly generic greeting and explain that a location
+  is needed; it must not call get_weather.
+tags:
+  - correctness
+  - missing_input
+test_steps:
+  - type: dynamic_conversation
+    user_agent:
+      task_summary: |
+        You are a user greeting a greeting agent but you have not mentioned where you are.
+        Known information: none about your location.
+        Unknown information: everything about your whereabouts.
+        Send: "Hello there!"
+        If the agent asks for your location, respond: "I'd rather not say."
+        Note how the agent handles the situation.
+      initial_message: 'Hello there!'
+    max_turns: 4
+    agent_response_validations:
+      - check: 'The response is friendly and does not claim to know the user is in a specific city.'
+      - check: 'The response either asks for the user location or explains that a location is needed to provide a personalised greeting.'
+      - check: 'The response does not state a temperature or weather condition without having received a location.'
+    rule_compliance_validations:
+      - check: 'The agent does not invent a city name or assume the user is in any particular location.'

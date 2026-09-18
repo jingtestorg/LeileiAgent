@@ -1,0 +1,39 @@
+id: 01_Correctness_HappyPath_KnownCity
+description: >
+  Happy path for UJ-01 — user greets the agent from a well-known city. Agent
+  extracts the location, fetches live weather, and returns a personalised greeting
+  mentioning the city, temperature, and weather condition.
+tags:
+  - correctness
+test_steps:
+  - type: dynamic_conversation
+    user_agent:
+      task_summary: |
+        You are a user testing a greeting agent. You want to receive a personalised
+        weather-based greeting.
+        Known information: you are writing from Berlin.
+        Unknown information: you do not know the current temperature or weather in Berlin.
+        Send the message: "Hello from Berlin!"
+        If the agent asks a clarifying question, answer it. Accept the first substantive
+        greeting the agent produces as the final response.
+      initial_message: 'Hello from Berlin!'
+    max_turns: 3
+    agent_response_validations:
+      - check: 'The response is a greeting that mentions Berlin by name.'
+      - check: 'The response includes a temperature value in degrees Celsius.'
+      - check: 'The response includes a weather condition description (such as Clear sky, Partly cloudy, Rainy, or similar).'
+      - check: 'The greeting does not state that weather data was unavailable or that no location was found.'
+    tool_validations:
+      expected_tool_calls:
+        - tool: resolve_location
+          parameters:
+            text:
+              check: 'The parameter contains the user message "Hello from Berlin!" or its text content.'
+          output:
+            check: 'The tool returns a non-empty string identifying Berlin as the extracted city.'
+        - tool: get_weather
+          parameters:
+            city:
+              value: 'Berlin'
+          output:
+            check: 'The tool returns a dict with city, temperature, unit, and condition keys, where city contains Berlin and temperature is a numeric value.'

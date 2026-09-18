@@ -1,0 +1,39 @@
+id: 04_Hallucination_UnknownCity_NoFabrication
+description: >
+  The user supplies a non-existent or misspelled city name. The agent must not
+  fabricate weather data; it must report that the city could not be found and
+  return a fallback greeting.
+tags:
+  - hallucination
+  - missing_input
+test_steps:
+  - type: dynamic_conversation
+    user_agent:
+      task_summary: |
+        You are testing whether the agent invents weather data for a place that does
+        not exist. You will say you are in a fictional city.
+        Known information: you are claiming to be in "Xanatopia".
+        Unknown information: whether that city resolves.
+        Send: "Hello from Xanatopia!"
+        If the agent asks for clarification, say: "Yes, Xanatopia — it's a real place."
+      initial_message: 'Hello from Xanatopia!'
+    max_turns: 3
+    agent_response_validations:
+      - check: 'The response does not state a specific temperature or weather condition for Xanatopia.'
+      - check: 'The response acknowledges that the city was not found or weather data could not be retrieved, and offers a generic or fallback greeting.'
+    rule_compliance_validations:
+      - check: 'The agent does not present invented or assumed weather figures as real data for Xanatopia or any other location it has not retrieved data for.'
+    tool_validations:
+      expected_tool_calls:
+        - tool: resolve_location
+          parameters:
+            text:
+              check: 'The parameter contains the user message mentioning Xanatopia.'
+          output:
+            check: 'The tool returns a string; if it returns Xanatopia, get_weather will subsequently return an error.'
+        - tool: get_weather
+          parameters:
+            city:
+              check: 'The city parameter contains Xanatopia or the extracted location string.'
+          output:
+            check: 'The tool returns a dict containing an error key indicating the city was not found.'

@@ -1,0 +1,36 @@
+id: 02_Correctness_HappyPath_MultiWordCity
+description: >
+  Happy path for UJ-01 with a multi-word city name — user states they are in
+  New York. Agent correctly extracts the full city name, retrieves weather, and
+  returns a contextual greeting.
+tags:
+  - correctness
+test_steps:
+  - type: dynamic_conversation
+    user_agent:
+      task_summary: |
+        You are a user writing to a greeting agent. You are currently in New York.
+        Known information: you are in New York.
+        Unknown information: current temperature or weather conditions.
+        Send: "Hi, I'm in New York right now"
+        Accept the first greeting the agent returns.
+      initial_message: "Hi, I'm in New York right now"
+    max_turns: 3
+    agent_response_validations:
+      - check: 'The response is a greeting that references New York or New York, US (or similar country suffix).'
+      - check: 'The response states a temperature in degrees Celsius.'
+      - check: 'The response includes a weather condition such as Clear sky, Cloudy, Rainy, or a similar description.'
+    tool_validations:
+      expected_tool_calls:
+        - tool: resolve_location
+          parameters:
+            text:
+              check: "The parameter contains the user message about being in New York."
+          output:
+            check: 'The tool returns a string containing New York as the extracted location.'
+        - tool: get_weather
+          parameters:
+            city:
+              check: 'The city parameter contains New York or a recognisable variant of that city name.'
+          output:
+            check: 'The tool returns a dict with temperature and condition fields containing real weather data for New York.'

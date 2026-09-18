@@ -1,0 +1,42 @@
+id: 07_BusinessOutcome_ContextualGreeting_Demo
+description: >
+  Business outcome test — agent demonstrates full end-to-end personalised greeting
+  capability, advancing the committed metric "Working demo delivering contextual
+  greetings". The agent must resolve location, retrieve weather, and compose a
+  greeting that references both.
+tags:
+  - correctness
+  - business_outcome
+test_steps:
+  - type: dynamic_conversation
+    user_agent:
+      task_summary: |
+        You are evaluating whether the greeting agent works as a fully functional
+        personalised greeting demo. You want to verify it can handle a complete
+        request end to end.
+        Known information: you are currently in Tokyo, Japan.
+        Unknown information: current temperature and weather in Tokyo.
+        Send: "Greetings from Tokyo!"
+        Accept the agent's response as the demo output and assess whether it
+        represents a contextual, personalised greeting.
+      initial_message: 'Greetings from Tokyo!'
+    max_turns: 3
+    agent_response_validations:
+      - check: '[BUSINESS_METRIC: Working demo delivering contextual greetings] The agent returns a greeting that references Tokyo by name, states a current temperature in degrees Celsius, and includes a weather condition — demonstrating a fully functional personalised greeting tied to real location and weather data.'
+      - check: 'The greeting is phrased as a personalised, human-sounding response rather than a raw data dump of temperature and conditions.'
+    rule_compliance_validations:
+      - check: 'The agent does not fabricate temperature or weather values — the values it states are ones it retrieved from a weather tool call in this turn.'
+    tool_validations:
+      expected_tool_calls:
+        - tool: resolve_location
+          parameters:
+            text:
+              check: 'The parameter contains the user message "Greetings from Tokyo!" or its text.'
+          output:
+            check: 'The tool returns a non-empty string identifying Tokyo as the location.'
+        - tool: get_weather
+          parameters:
+            city:
+              value: 'Tokyo'
+          output:
+            check: 'The tool returns a dict with city, temperature, unit, and condition fields for Tokyo, with a numeric temperature value.'

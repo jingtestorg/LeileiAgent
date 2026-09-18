@@ -1,0 +1,37 @@
+apiVersion: asset.sap/v1
+kind: Asset
+type: agent
+
+metadata:
+  name: weather-greeting-agent
+  version: "1.0.0"
+
+provides:
+  apis:
+    - name: weather-greeting-agent
+      kind: a2a
+      ordId: customer.build:apiResource:weather-greeting-agent-f37a3.weather-greeting-agent:v1
+      description: AI agent that greets users with personalized hellos based on their location and current weather conditions
+
+container:
+  buildPath: .
+  port: 5000
+
+probes:
+  startup:
+    path: /.well-known/agent.json
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 18
+  liveness:
+    path: /.well-known/agent.json
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    path: /.well-known/agent.json
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
