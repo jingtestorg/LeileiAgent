@@ -3,7 +3,7 @@ kind: Solution
 
 metadata:
   name: weather-greeting-agent-f37a3
-  version: "1.0.0"
+  version: "1.0.1"
   description: "AI agent that greets users with personalized hellos based on their location and current weather conditions"
 
 assets:
